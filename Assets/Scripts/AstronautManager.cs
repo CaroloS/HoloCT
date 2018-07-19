@@ -78,5 +78,10 @@ namespace Academy
 
             ExpandModel.Instance.Expand();
         }
+
+        public void buttonPressed()
+        {
+            Debug.Log("Button Pressed");
+        }
     }
 }

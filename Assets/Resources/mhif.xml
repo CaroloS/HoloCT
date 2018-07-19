@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patient>
+  <patientCase id="Example">
+    <patientID>X04578</patientID>
+    <patientAge>12 weeks</patientAge>
+    <revisionNumber>2</revisionNumber>
+    <lastEditedBy>Immanuel</lastEditedBy>
+    <DateAndTimeOfLastEdit>2018-07-17T16:25:45.850</DateAndTimeOfLastEdit>
+    <meshes>
+      <mesh>
+        <name>Samba Dancing.fbx</name>
+        <fileType>fbx</fileType>
+        <rawMeshData>
+        </rawMeshData>
+      </mesh>
+    </meshes>
+    <annotation1>
+      <author>Caroline</author>
+      <revisionNumber>0</revisionNumber>
+      <timeofEdit>2018-07-17T16:26:13.188</timeofEdit>
+      <annotationType>text</annotationType>
+      <comment>Cerebellum</comment>
+    </annotation1>
+    <annotation2>
+      <author>Immanuel</author>
+      <revisionNumber>1</revisionNumber>
+      <timeofEdit>2018-07-17T16:26:30.725</timeofEdit>
+      <annotationType>text</annotationType>
+      <comment>Medulla Oblongata</comment>
+    </annotation2>
+    <annotation3>
+      <author>Immanuel</author>
+      <revisionNumber>1</revisionNumber>
+      <timeofEdit>2018-07-17T16:26:30.725</timeofEdit>
+      <annotationType>image</annotationType>
+      <comment>Parietal lobe</comment>
+    </annotation3>
+  </patientCase>
+</patient> 
