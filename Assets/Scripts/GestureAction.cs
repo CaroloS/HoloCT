@@ -88,11 +88,11 @@ namespace Academy
 
         void ISpeechHandler.OnSpeechKeywordRecognized(SpeechEventData eventData)
         {
-            if (eventData.RecognizedText.ToLower().Equals("move astronaut"))
+            if (eventData.RecognizedText.ToLower().Equals("move model"))
             {
                 isNavigationEnabled = false;
             }
-            else if (eventData.RecognizedText.ToLower().Equals("rotate astronaut"))
+            else if (eventData.RecognizedText.ToLower().Equals("rotate model"))
             {
                 isNavigationEnabled = true;
             }

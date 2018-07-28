@@ -49,19 +49,8 @@ public class ImageDemo : MonoBehaviour
   private void DisplayImage()
 
   {
-        byte[] imageBytes = null;
+       
 
-        string someUrl = "https://holoctazureblobs.blob.core.windows.net/blob2/flower.jpg?sp=rw&st=2018-07-17T10:44:29Z&se=2018-07-17T18:44:29Z&sip=82.5.46.120&spr=https&sv=2017-11-09&sig=EjJn4OYUM70WFDTiaKFJF7nSqImzbvknAvDvhn%2F%2FmAQ%3D&sr=b";
-        using (var webClient = new WebClient())
-        {
-            imageBytes = webClient.DownloadData(someUrl);
-        }
-
-
-
-    Texture2D texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-    texture.LoadImage(imageBytes);
-    ChangeImage(texture);
   }
 
 

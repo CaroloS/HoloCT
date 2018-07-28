@@ -23,7 +23,7 @@ namespace Azure.StorageServices
         [SerializeField]
         private BlobStorageConfig blobStorageConfig;
 
-        public string file = null;
+        public string file;
         public string container = null;
         public bool Multithreaded = true;
 
@@ -35,6 +35,7 @@ namespace Azure.StorageServices
 
         [SerializeField]
         private Shader shaderOverride = null;
+        
 
         void Start()
         {
@@ -47,9 +48,10 @@ namespace Azure.StorageServices
         public IEnumerator Load()
         {
             GLTFSceneImporter sceneImporter = null;
-            ILoader loader = null;
+         //    ILoader loader = null;
+           ILoader loader = new loadFromLocal(file);
 
-            loader = new BlobStorageLoader(blobStorageConfig.Service, container);
+         //   loader = new BlobStorageLoader(blobStorageConfig.Service, container);
             sceneImporter = new GLTFSceneImporter(file, loader);
 
             sceneImporter.SceneParent = gameObject.transform;

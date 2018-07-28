@@ -1,16 +1,41 @@
 ﻿using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Xml;
+
 using System;
 using System.Collections;
 using HoloToolkit.UX.ToolTips;
+using System.Text;
+using Azure.StorageServices;
+using UnityGLTF.Loader;
+using System.IO;
+using RESTClient;
+using System.Xml.Linq;
 
 public class dynamicLoad : MonoBehaviour
 {
-  
+    public Stream LoadedStream { get; private set; }
+
+    [SerializeField]
+    private BlobStorageConfig blobStorageConfig;
+
+    [Header("Azure Storage Service")]
+    [SerializeField]
+    private string storageAccount;
+    [SerializeField]
+    private string accessKey;
+    [SerializeField]
+    private string container;
+    [SerializeField]
+    private string filename;
+    [SerializeField]
+    public bool Multithreaded = true;
+
+    private StorageServiceClient client;
+    private BlobService blobService;
+
     [Tooltip("GameObject text that is displayed on the tooltip.")]
     [SerializeField]
     protected GameObject label;
@@ -20,63 +45,50 @@ public class dynamicLoad : MonoBehaviour
     [Tooltip("GameObject text that is displayed on the tooltip.")]
     [SerializeField]
     protected GameObject image;
-    [Tooltip("GameObject text that is displayed on the tooltip.")]
     [SerializeField]
     protected GameObject image1;
-    [Tooltip("GameObject text that is displayed on the tooltip.")]
     [SerializeField]
     protected GameObject image2;
+
 
     // Use this for initialization
     void Start()
     {
-        Debug.Log("Hello");
-        TextAsset textAsset = (TextAsset)Resources.Load("mhif");
-        XmlDocument xmldoc = new XmlDocument();
-        xmldoc.LoadXml(textAsset.text);
+        
 
-        XmlNode node = xmldoc.SelectSingleNode("//patientCase/annotation1/comment/text()");
-        XmlNode node1 = xmldoc.SelectSingleNode("//patientCase/annotation2/comment/text()");
-        XmlNode node2 = xmldoc.SelectSingleNode("//patientCase/annotation3/comment/text()");
-        XmlNode node3 = xmldoc.SelectSingleNode("//patientCase/lastEditedBy/text()");
-        XmlNode node4 = xmldoc.SelectSingleNode("//patientCase/revisionNumber/text()");
-        XmlNode node5 = xmldoc.SelectSingleNode("//patientCase/patientID/text()");
-        XmlNode node6 = xmldoc.SelectSingleNode("//patientCase/DateAndTimeOfLastEdit/text()");
-        XmlNode node7 = xmldoc.SelectSingleNode("//patientCase/patientAge/text()");
+        if (string.IsNullOrEmpty(storageAccount) || string.IsNullOrEmpty(accessKey))
+        {
+            Debug.Log( "Storage account and access key are required - Enter storage account and access key in Unity Editor" );
+        }
 
-        Debug.Log(node.Value);
-        Debug.Log(node1.Value);
-        Debug.Log(node2.Value);
-        Debug.Log(node3.Value);
-        Debug.Log(node4.Value);
-        Debug.Log(node5.Value);
-        Debug.Log(node6.Value);
-        Debug.Log(node7.Value);
+        client = StorageServiceClient.Create(storageAccount, accessKey);
+        blobService = client.GetBlobService();
 
-        TextMesh text = label.GetComponent<TextMesh>();
-        text.text = node.Value;
+        string resourcePath = container + "/" + filename;
+        StartCoroutine(blobService.GetTextBlob(GetTextBlob, resourcePath));
+        
+    
 
-        /*
-        TextMesh text2 = label2.GetComponent<TextMesh>();
-        text2.text = node1.Value;
+    }
 
-        TextMesh text3 = label3.GetComponent<TextMesh>();
-        text3.text = node3.Value;
+    private void GetTextBlob(RestResponse response)
+    {
+        if (response.IsError)
+        {
+            Debug.Log( response.ErrorMessage + " Error getting blob:" + response.Content);
+            return;
+        }
 
-        TextMesh text4 = label3.GetComponent<TextMesh>();
-        text3.text = node3.Value;
+        XDocument xmldoc = new XDocument();
+        xmldoc = XDocument.Load(response.Content);
+        parseXML(xmldoc);
 
-        TextMesh text5 = label3.GetComponent<TextMesh>();
-        text3.text = node3.Value;
-        */
-        Texture2D tex = (Texture2D)Resources.Load("lung_hist");
-        ChangeImage(tex, image);
+    }
 
-        Texture2D tex1 = (Texture2D)Resources.Load("brain_hist");
-        ChangeImage(tex1, image1);
+    private void parseXML(XDocument xmldoc)
+    {
+       
 
-        Texture2D tex2 = (Texture2D)Resources.Load("brain_CT");
-        ChangeImage(tex2, image2);
     }
 
 
@@ -99,32 +111,29 @@ public class dynamicLoad : MonoBehaviour
 
 
 
+    private void LoadedBytesCompleted(RESTClient.IRestResponse<byte[]> response)
+    {
+        if (response.IsError)
+        {
+            Debug.LogError("Error loading blob: " + response.ErrorMessage);
+            return;
+        }
+
+        if (response.Data.Length > int.MaxValue)
+        {
+            throw new Exception("Stream is larger than can be copied into byte array");
+        }
+
+        LoadedStream = new MemoryStream(response.Data, 0, response.Data.Length, true, true);
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-    /*
-
-       byte[] imageBytes = null;
-       string someUrl = "https://holoctazureblobs.blob.core.windows.net/blob2/flower.jpg?sp=rw&st=2018-07-17T10:44:29Z&se=2018-07-17T18:44:29Z&sip=82.5.46.120&spr=https&sv=2017-11-09&sig=EjJn4OYUM70WFDTiaKFJF7nSqImzbvknAvDvhn%2F%2FmAQ%3D&sr=b";
-       using (var webClient = new WebClient())
-       {
-           imageBytes = webClient.DownloadData(someUrl);
-       }
-
-       */
 
 
     
+
+
+
 
     //ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
     /*
@@ -161,3 +170,47 @@ public class dynamicLoad : MonoBehaviour
 
 
 }
+
+/*
+
+     Debug.Log(node.Value);
+     TextMesh text = label.GetComponent<TextMesh>();
+     text.text = node.Value;
+
+
+     TextMesh text2 = label2.GetComponent<TextMesh>();
+     text2.text = node1.Value;
+
+
+     Texture2D tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+     tex.LoadImage(imageBytes);
+     ChangeImage(tex, image);
+
+     Texture2D tex1 = (Texture2D)Resources.Load("brain_hist");
+     ChangeImage(tex1, image1);
+
+     Texture2D texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+     texture.LoadImage(imageBytes);
+     ChangeImage(texture, image2);
+
+   //  Texture2D tex2 = (Texture2D)Resources.Load("brain_CT");
+   //  ChangeImage(tex2, image2);
+   */
+
+/*
+      XmlNode node1 = xmldoc.SelectSingleNode("//patientCase/annotation2/comment/text()");
+      XmlNode node2 = xmldoc.SelectSingleNode("//patientCase/annotation3/comment/text()");
+      XmlNode node3 = xmldoc.SelectSingleNode("//patientCase/lastEditedBy/text()");
+      XmlNode node4 = xmldoc.SelectSingleNode("//patientCase/revisionNumber/text()");
+      XmlNode node5 = xmldoc.SelectSingleNode("//patientCase/patientID/text()");
+      XmlNode node6 = xmldoc.SelectSingleNode("//patientCase/DateAndTimeOfLastEdit/text()");
+      XmlNode node7 = xmldoc.SelectSingleNode("//patientCase/patientAge/text()");
+
+      */
+//  _service = blobStorageConfig.Service;
+// String resource = "{0}/{1}", container, file;
+// xmldoc2 = _service.GetXmlBlob(LoadedBytesCompleted, resource);
+
+
+// ILoader loader = null;
+// loader = new BlobStorageLoader(blobStorageConfig.Service, container);
