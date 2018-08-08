@@ -13,13 +13,16 @@ using UnityGLTF.Loader;
 using System.IO;
 using RESTClient;
 using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class dynamicLoad : MonoBehaviour
 {
     public Stream LoadedStream { get; private set; }
-
-    [SerializeField]
-    private BlobStorageConfig blobStorageConfig;
+    
+    private StorageServiceClient client;
+    private BlobService blobService;
 
     [Header("Azure Storage Service")]
     [SerializeField]
@@ -28,68 +31,140 @@ public class dynamicLoad : MonoBehaviour
     private string accessKey;
     [SerializeField]
     private string container;
-    [SerializeField]
-    private string filename;
-    [SerializeField]
-    public bool Multithreaded = true;
-
-    private StorageServiceClient client;
-    private BlobService blobService;
 
     [Tooltip("GameObject text that is displayed on the tooltip.")]
     [SerializeField]
-    protected GameObject label;
-    protected GameObject label1;
-    protected GameObject label2;
+    protected Text text1;
+    [SerializeField]
+    protected Text text2;
+    [SerializeField]
+    protected Text text3;
+    [SerializeField]
+    protected Text text4;
+    [SerializeField]
+    protected Text tag1;
+    [SerializeField]
+    protected Text tag2;
+    [SerializeField]
+    protected Text caseName;
 
     [Tooltip("GameObject text that is displayed on the tooltip.")]
-    [SerializeField]
-    protected GameObject image;
     [SerializeField]
     protected GameObject image1;
     [SerializeField]
     protected GameObject image2;
+  
 
+    public static String blobName;
+    public static XDocument xmldoc = new XDocument();
+   // public static XDocument xmldoc2 = new XDocument();
+   // public static XDocument xmldoc3 = new XDocument();
+
+    public static int MeshCount = 0;
+    public static List<string> meshes = new List<string>();
 
     // Use this for initialization
     void Start()
     {
         
-
-        if (string.IsNullOrEmpty(storageAccount) || string.IsNullOrEmpty(accessKey))
-        {
-            Debug.Log( "Storage account and access key are required - Enter storage account and access key in Unity Editor" );
-        }
-
-        client = StorageServiceClient.Create(storageAccount, accessKey);
-        blobService = client.GetBlobService();
-
-        string resourcePath = container + "/" + filename;
-        StartCoroutine(blobService.GetTextBlob(GetTextBlob, resourcePath));
-        
-    
+        getMetaData();
+        getImageAnnotations();
 
     }
 
-    private void GetTextBlob(RestResponse response)
+
+    private void getMetaData()
     {
-        if (response.IsError)
+     
+        foreach (XElement element in xmldoc.Descendants("patientCase"))
         {
-            Debug.Log( response.ErrorMessage + " Error getting blob:" + response.Content);
-            return;
+             Dictionary<Text, string> myDict = new Dictionary<Text, string>
+                {
+                    { text1, element.Element("patientAge").Value  },
+                    { text2, element.Element("revisionNumber").Value },
+                    { text3, element.Element("lastEditedBy").Value },
+                    { text4, element.Element("DateAndTimeOfLastEdit").Value }
+                };
+
+        foreach (KeyValuePair<Text, string> entry in myDict)
+            {
+                entry.Key.text = entry.Value;
+            }
         }
-
-        XDocument xmldoc = new XDocument();
-        xmldoc = XDocument.Load(response.Content);
-        parseXML(xmldoc);
-
+           
     }
 
-    private void parseXML(XDocument xmldoc)
+
+    private void getImageAnnotations()
     {
+        List<string> imageAnnotations = new List<string>();
+        List<Texture2D> textures = new List<Texture2D>();
+        List<string> tags = new List<string>();
+
+        var hasAnnotation = xmldoc.Descendants("annotation");
+
+        if (hasAnnotation != null)
+        {
+            foreach (XElement element1 in xmldoc.Descendants("annotationData"))
+            {
+                string type = element1.Attribute("type").Value.ToString();
+                string tag = element1.Attribute("tag").Value.ToString();
+
+                if (type == "image")
+                {
+                    string CurrentValue = (string)element1;
+                    imageAnnotations.Add(CurrentValue);
+                    tags.Add(tag);
+                }
+            }
+        }
+
+        if (imageAnnotations.Any())
+        {
+         foreach (string element in imageAnnotations)
+                {
+                    Debug.Log(element);
+                    byte[] imageBytes = System.Convert.FromBase64String(element);
+                    Texture2D tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+                    tex.LoadImage(imageBytes);
+                    textures.Add(tex);
+                }
+        }
+
        
+        if (textures.Any())
+        {
+            if (textures.Count() == 1)
+            {
+                ChangeImage(textures[0], image1);
+                if (tags.Count() >=1)
+                {
+                    tag1.text = tags[0];
+                }
+            }
+            else
+            {
+
+                ChangeImage(textures[0], image1);
+                ChangeImage(textures[1], image2);
+                if (tags.Count() >= 2)
+                {
+                    tag1.text = tags[0];
+                    tag2.text = tags[1];
+
+                }
+            }
+        }
+        else
+        {
+           // GameObject.Find("CanvasGroup").SetActive(false);
+        }
+
+        caseName.text = blobName;
+        
 
     }
+
 
 
     private void ChangeImage(Texture2D texture, GameObject imageToChange)
@@ -103,73 +178,26 @@ public class dynamicLoad : MonoBehaviour
         ChangeImage(texture as Texture2D);
     }
 
+    public void backToListscene()
+    {
+        meshes.Clear();
+        MeshCount = 0;
+        SceneManager.LoadScene("ListScene");
+
+    }
+
     // Update is called once per frame
     void Update()
     {
 
     }
 
-
-
-    private void LoadedBytesCompleted(RESTClient.IRestResponse<byte[]> response)
-    {
-        if (response.IsError)
-        {
-            Debug.LogError("Error loading blob: " + response.ErrorMessage);
-            return;
-        }
-
-        if (response.Data.Length > int.MaxValue)
-        {
-            throw new Exception("Stream is larger than can be copied into byte array");
-        }
-
-        LoadedStream = new MemoryStream(response.Data, 0, response.Data.Length, true, true);
-    }
-
-
-
-
     
 
 
-
-
-    //ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
-    /*
-    public bool MyRemoteCertificateValidationCallback(System.Object sender,
-    X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-    {
-        bool isOk = true;
-        // If there are errors in the certificate chain,
-        // look at each error to determine the cause.
-        if (sslPolicyErrors != SslPolicyErrors.None)
-        {
-            for (int i = 0; i < chain.ChainStatus.Length; i++)
-            {
-                if (chain.ChainStatus[i].Status == X509ChainStatusFlags.RevocationStatusUnknown)
-                {
-                    continue;
-                }
-                chain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;
-                chain.ChainPolicy.RevocationMode = X509RevocationMode.Online;
-                chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 1, 0);
-                chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
-                bool chainIsValid = chain.Build((X509Certificate2)certificate);
-                if (!chainIsValid)
-                {
-                    isOk = false;
-                    break;
-                }
-            }
-        }
-        return isOk;
-    }
-    */
-
-
-
 }
+
+
 
 /*
 
@@ -197,20 +225,6 @@ public class dynamicLoad : MonoBehaviour
    //  ChangeImage(tex2, image2);
    */
 
-/*
-      XmlNode node1 = xmldoc.SelectSingleNode("//patientCase/annotation2/comment/text()");
-      XmlNode node2 = xmldoc.SelectSingleNode("//patientCase/annotation3/comment/text()");
-      XmlNode node3 = xmldoc.SelectSingleNode("//patientCase/lastEditedBy/text()");
-      XmlNode node4 = xmldoc.SelectSingleNode("//patientCase/revisionNumber/text()");
-      XmlNode node5 = xmldoc.SelectSingleNode("//patientCase/patientID/text()");
-      XmlNode node6 = xmldoc.SelectSingleNode("//patientCase/DateAndTimeOfLastEdit/text()");
-      XmlNode node7 = xmldoc.SelectSingleNode("//patientCase/patientAge/text()");
-
-      */
-//  _service = blobStorageConfig.Service;
-// String resource = "{0}/{1}", container, file;
-// xmldoc2 = _service.GetXmlBlob(LoadedBytesCompleted, resource);
 
 
-// ILoader loader = null;
-// loader = new BlobStorageLoader(blobStorageConfig.Service, container);
+

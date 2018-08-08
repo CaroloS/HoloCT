@@ -22,37 +22,37 @@ namespace Azure.StorageServices
     {
         [SerializeField]
         private BlobStorageConfig blobStorageConfig;
-
-        public string file;
         public string container = null;
         public bool Multithreaded = true;
+        public int MeshNum;
 
         [SerializeField]
         private bool loadOnStart = true;
-
         public int MaximumLod = 300;
         public GLTFSceneImporter.ColliderType Collider = GLTFSceneImporter.ColliderType.Mesh;
 
         [SerializeField]
         private Shader shaderOverride = null;
-        
+
 
         void Start()
         {
             if (loadOnStart && blobStorageConfig.Ready)
             {
-                StartCoroutine(Load());
+                if(dynamicLoad.MeshCount >= MeshNum)
+                {
+                    StartCoroutine(Load());
+                }
+                
             }
         }
 
         public IEnumerator Load()
         {
             GLTFSceneImporter sceneImporter = null;
-         //    ILoader loader = null;
-           ILoader loader = new loadFromLocal(file);
+            ILoader loader = new loadFromLocal(dynamicLoad.blobName, MeshNum);
 
-         //   loader = new BlobStorageLoader(blobStorageConfig.Service, container);
-            sceneImporter = new GLTFSceneImporter(file, loader);
+            sceneImporter = new GLTFSceneImporter(dynamicLoad.blobName, loader);
 
             sceneImporter.SceneParent = gameObject.transform;
             sceneImporter.Collider = Collider;
@@ -72,3 +72,8 @@ namespace Azure.StorageServices
         }
     }
 }
+
+
+
+
+//   loader = new BlobStorageLoader(blobStorageConfig.Service, container);

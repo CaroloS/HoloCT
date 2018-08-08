@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using Academy;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class OnStart : MonoBehaviour {
@@ -15,7 +17,10 @@ public class OnStart : MonoBehaviour {
     protected GameObject image2;
 
     // Use this for initialization
-    void Start () {
+    private void Start () {
+
+      
+
         Texture2D tex1 = (Texture2D)Resources.Load("brain_hist");
         ChangeImage(tex1, image1);
 
@@ -42,5 +47,11 @@ public class OnStart : MonoBehaviour {
     private void ChangeImage(Texture texture)
     {
         ChangeImage(texture as Texture2D);
+    }
+
+    public void backToMenu()
+    {
+        
+        SceneManager.LoadScene("Menu");
     }
 }

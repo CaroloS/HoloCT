@@ -21,11 +21,11 @@ EditorBuildSettings:
     path: Assets/HoloToolkit-Examples/UX/Scenes/BoundingBoxGizmoExample.unity
     guid: d909917bdc6293945b2923ca5d139560
   - enabled: 1
+    path: Assets/ListScene.unity
+    guid: d7c970ceec1de4ccaaa8e502a85d5d8f
+  - enabled: 1
     path: Assets/dynamic.unity
     guid: fdd11a8c2717deb4fae40a7bdcde3ce0
   - enabled: 0
     path: Assets/Demos/Image/ImageScene.unity
     guid: aa837094107064419849b75405659b00
-  - enabled: 0
-    path: Assets/Demos/List/ListScene.unity
-    guid: d7c970ceec1de4ccaaa8e502a85d5d8f

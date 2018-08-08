@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using Tacticsoft;
 using System;
 using UnityEngine.SceneManagement;
+using System.Xml.Linq;
 
 public class ListDemo : MonoBehaviour, ITableViewDataSource
 {
@@ -30,9 +31,13 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
   private List<Blob> items;
   public Text label;
 
+ 
+
+
   // Use this for initialization
   void Start()
-  {
+    { 
+        
     if (string.IsNullOrEmpty(storageAccount) || string.IsNullOrEmpty(accessKey))
     {
       Log.Text(label, "Storage account and access key are required", "Enter storage account and access key in Unity Editor", Log.Level.Error);
@@ -46,6 +51,7 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
     tableView.dataSource = this;
 
     ListBlobs();
+    
   }
 
   // Update is called once per frame
@@ -56,8 +62,10 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
 
   public void OnRefresh()
   {
-    ListBlobs();
+        ListBlobs();
   }
+
+
 
   public void ListBlobs()
   {
@@ -83,6 +91,7 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
     items.AddRange(blobs);
     tableView.ReloadData();
   }
+
 
   #region ITableViewDataSource
 
@@ -112,25 +121,73 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
 
   #endregion
 
+
+
   /// <summary>
   /// Handler to get selected row item
   /// </summary>
   public void OnSelectedRow(Button button)
   {
-    string blobName = button.name;
-    Debug.Log("Delete blob: " + blobName);
-    foreach (Blob blob in items)
-    {
-      if (string.Equals(blob.Name, blobName))
-      {
-        DeleteBlob(blob);
-        return;
-      }
-    }
-    Debug.LogWarning("Unable to resolve blob name in list: " + blobName);
+
+    dynamicLoad.blobName = button.name;
+  //  dynamicLoad.blobName = "new.xml";
+    Debug.Log("Load blob: " + dynamicLoad.blobName);
+
+
+     Debug.Log("This blob is: " + dynamicLoad.blobName);
+
+     if (string.IsNullOrEmpty(storageAccount) || string.IsNullOrEmpty(accessKey))
+        {
+            Debug.Log("Storage account and access key are required - Enter storage account and access key in Unity Editor");
+        }
+
+      client = StorageServiceClient.Create(storageAccount, accessKey);
+      blobService = client.GetBlobService();
+
+      string resourcePath = container + "/" + dynamicLoad.blobName;
+      StartCoroutine(blobService.GetTextBlob(GetTextBlob, resourcePath));
+    
   }
 
-  private void DeleteBlob(Blob item)
+
+
+    private void GetTextBlob(RestResponse response)
+    {
+        if (response.IsError)
+        {
+            Debug.Log(response.ErrorMessage + " Error getting blob:" + response.Content);
+            return;
+        }
+
+        dynamicLoad.xmldoc = XDocument.Parse(response.Content);
+        Debug.Log("The xml has been set: " + dynamicLoad.xmldoc);
+        countMeshNumber(dynamicLoad.xmldoc);
+
+        
+    }
+
+
+
+    private void countMeshNumber(XDocument xmldoc)
+    {
+
+        foreach (XElement element in xmldoc.Descendants("mesh"))
+        {
+            dynamicLoad.MeshCount++;
+            dynamicLoad.meshes.Add(element.Element("rawData").Value);
+            Debug.Log(element.Element("rawData").Value);
+            Debug.Log(dynamicLoad.MeshCount);
+        }
+
+        SceneManager.LoadScene("dynamic");
+    }
+
+
+
+    
+
+
+    private void DeleteBlob(Blob item)
   {
     // Remove it from the table view list and delete it
     items.Remove(item);
@@ -151,6 +208,20 @@ public class ListDemo : MonoBehaviour, ITableViewDataSource
 
   public void TappedNext()
   {
-    SceneManager.LoadScene("TextScene");
+    SceneManager.LoadScene("Menu");
   }
 }
+
+
+/*
+   foreach (Blob blob in items)
+   {
+     if (string.Equals(blob.Name, blobName))
+     {
+       DeleteBlob(blob);
+       return;
+     }
+   }
+   */
+
+//   Debug.LogWarning("Unable to resolve blob name in list: " + blobName);

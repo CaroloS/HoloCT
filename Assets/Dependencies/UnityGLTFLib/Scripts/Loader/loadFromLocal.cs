@@ -13,11 +13,12 @@ public class loadFromLocal : ILoader
     public Stream LoadedStream { get; private set; }
 
     public string _filename;
+    public int _MeshNumber;
 
-    public loadFromLocal(string filename)
+    public loadFromLocal(string filename, int MeshNumber)
     {
         _filename = filename;
-
+        _MeshNumber = MeshNumber;
     }
 
     public IEnumerator LoadStream(string _filename)
@@ -34,16 +35,8 @@ public class loadFromLocal : ILoader
 
     private string getResource()
     {
-
-        TextAsset textAsset = (TextAsset)Resources.Load("new");
-        
-        XDocument xmldoc = new XDocument();
-        xmldoc = XDocument.Parse(textAsset.text);
-
-        Debug.Log(xmldoc);
-
-        var data = xmldoc.Element("patient").Element("patientCase").Element("meshes").Element("mesh").Element("rawData").Value;
-
+        var data = dynamicLoad.meshes[_MeshNumber - 1];
+      
         byte[] gltfBytes = System.Convert.FromBase64String(data);
 
         LoadedStream = new MemoryStream(gltfBytes, 0, gltfBytes.Length, true, true);
@@ -62,3 +55,30 @@ public class loadFromLocal : ILoader
 		
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+      TextAsset textAsset = (TextAsset)Resources.Load("new");
+      XDocument xmldoc2 = new XDocument();
+      xmldoc2 = XDocument.Parse(textAsset.text);
+
+      List<string> list = new List<string>();
+      int count = 1;
+
+      foreach (XElement element in xmldoc2.Descendants("mesh"))
+      {
+          list.Add(element.Element("rawData").Value);
+      }
+      */

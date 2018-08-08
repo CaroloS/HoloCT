@@ -11,7 +11,7 @@ public class preLoadScene : MonoBehaviour {
 	void Start () {
         DontDestroyOnLoad(gameObject);
         SceneManager.LoadScene("Menu");
-     //   HoloToolkit.Unity.in
+    
     }
 	
 	// Update is called once per frame

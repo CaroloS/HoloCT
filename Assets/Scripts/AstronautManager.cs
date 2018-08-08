@@ -2,86 +2,133 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using HoloToolkit.Unity;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Academy
 {
-    public class AstronautManager : Singleton<AstronautManager>
+    public class AstronautManager : MonoBehaviour
+      
     {
         private float expandAnimationCompletionTime;
 
         // Store a bool for whether our astronaut model is expanded or not.
         private bool isModelExpanding = false;
 
+        public static List<GameObject> game_objects = new List<GameObject>();
+
+        void Start()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            scene.GetRootGameObjects(game_objects);
+
+            Debug.Log(game_objects[2].name);
+            Debug.Log(game_objects[3].name);
+
+        }
 
         private void Update()
         {
             if (isModelExpanding && Time.realtimeSinceStartup >= expandAnimationCompletionTime)
             {
                 isModelExpanding = false;
-
-                Animator[] expandedAnimators = ExpandModel.Instance.ExpandedModel.GetComponentsInChildren<Animator>();
-                foreach (Animator animator in expandedAnimators)
-                {
-                    animator.enabled = false;
-                }
             }
         }
+
+
 
         public void ResetModelCommand()
         {
-            // Reset local variables.
-            isModelExpanding = false;
 
-            GameObject currentModel = ExpandModel.Instance.gameObject;
-            GameObject expandedModel = ExpandModel.Instance.ExpandedModel;
-            // Disable the expanded model.
-            expandedModel.SetActive(false);
-     
-            // Enable the idle model.
-            currentModel.SetActive(true);
-
-            // Enable the animators for the next time the model is expanded.
-            Animator[] expandedAnimators = expandedModel.GetComponentsInChildren<Animator>();
-            foreach (Animator animator in expandedAnimators)
+            foreach (GameObject g in game_objects)
             {
-                animator.enabled = true;
+                if (g.name == "skin_Parent")
+                {
+                    Transform[] trans = g.GetComponentsInChildren<Transform>(true);
+                    foreach (Transform t in trans)
+                    {
+                        t.gameObject.SetActive(true);
+                    }
+                }
             }
 
-            ExpandModel.Instance.Reset();
+            foreach (GameObject g in game_objects)
+            {
+                if (g.name == "skinExpanded_Parent")
+                {
+                    Transform[] trans = g.GetComponentsInChildren<Transform>(true);
+                    foreach (Transform t in trans)
+                    {
+                        t.gameObject.SetActive(false);
+                    }
+                }
+            }
+
+
         }
 
-        public void ExpandModelCommand()
-        {
-            // Swap out the current model for the expanded model.
-            GameObject currentModel = ExpandModel.Instance.gameObject;
-            GameObject expandedModel = ExpandModel.Instance.ExpandedModel;
 
-            expandedModel.transform.position = currentModel.transform.position;
-            expandedModel.transform.rotation = currentModel.transform.rotation;
-            expandedModel.transform.localScale = currentModel.transform.localScale;
 
-            currentModel.SetActive(false);
-
-            expandedModel.SetActive(true);
-
-            // Play animation.  Ensure the Loop Time check box is disabled in the inspector for this animation to play it once.
-            Animator[] expandedAnimators = expandedModel.GetComponentsInChildren<Animator>();
-            // Set local variables for disabling the animation.
-            if (expandedAnimators.Length > 0)
+            /*
+            Transform[] trans2 = game_objects[3].GetComponentsInChildren<Transform>(true);
+            foreach (Transform t2 in trans2)
             {
-                expandAnimationCompletionTime = Time.realtimeSinceStartup + expandedAnimators[0].runtimeAnimatorController.animationClips[0].length * 0.9f;
+                t2.gameObject.SetActive(false);
+            }
+        */
+
+
+            public void ExpandModelCommand()
+        {
+
+            foreach (GameObject g in game_objects)
+            {
+                if (g.name == "skin_Parent")
+                {
+                    Transform[] trans = g.GetComponentsInChildren<Transform>(true);
+                    foreach (Transform t in trans)
+                    {
+                        t.gameObject.SetActive(false);
+                    }
+                }
             }
 
-            // Set the expand model flag.
-            isModelExpanding = true;
+            foreach (GameObject g in game_objects)
+            {
+                if (g.name == "skinExpanded_Parent")
+                {
+                    Transform[] trans = g.GetComponentsInChildren<Transform>(true);
+                    foreach (Transform t in trans)
+                    {
+                        t.gameObject.SetActive(true);
+                    }
+                }
+            }
 
-            ExpandModel.Instance.Expand();
+            /*
+
+            Transform[] trans = game_objects[2].GetComponentsInChildren<Transform>(true);
+            foreach (Transform t in trans)
+            {
+                t.gameObject.SetActive(false);
+            }
+
+            Transform[] trans2 = game_objects[3].GetComponentsInChildren<Transform>(true);
+            foreach (Transform t2 in trans2)
+            {
+                t2.gameObject.SetActive(true);
+            }
+            
+    */
         }
 
         public void buttonPressed()
         {
             Debug.Log("Button Pressed");
         }
+
+        
+
     }
 }

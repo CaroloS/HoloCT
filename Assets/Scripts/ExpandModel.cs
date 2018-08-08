@@ -9,7 +9,8 @@ namespace Academy
     /// <summary>
     /// Placeholder script for exploding the model.
     /// </summary>
-    public class ExpandModel : Singleton<ExpandModel>
+    public class ExpandModel : MonoBehaviour
+        //Singleton<ExpandModel>
     {
         // We are using a different model for the expanded view.  Set it here so we can swap it out when we expand.
         [Tooltip("Game object for the exploded model.")]
@@ -30,6 +31,8 @@ namespace Academy
 
         public bool IsModelExpanded { get; private set; }
 
+
+        /*
         protected override void Awake()
         {
             base.Awake();
@@ -78,5 +81,8 @@ namespace Academy
                 audioSource.dopplerLevel = 0;
             }
         }
+
+    */
+
     }
 }
