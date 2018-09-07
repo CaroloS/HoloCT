@@ -18,7 +18,7 @@ public class SceneLoader : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        StartCoroutine(GetText());
+       // StartCoroutine(GetText());
 
     }
 
@@ -47,17 +47,6 @@ public class SceneLoader : MonoBehaviour
         }
     }
 
-
-    private void ChangeImage(Texture2D texture, GameObject imageToChange)
-    {
-        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-        imageToChange.GetComponent<Image>().sprite = sprite;
-    }
-
-    private void ChangeImage(Texture texture)
-    {
-        ChangeImage(texture as Texture2D);
-    }
 
     public void load_Static_Scene()
     {

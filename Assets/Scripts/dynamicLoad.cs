@@ -53,77 +53,44 @@ public class dynamicLoad : MonoBehaviour
     protected GameObject image1;
     [SerializeField]
     protected GameObject image2;
-  
 
-    public static String blobName;
-    public static XDocument xmldoc = new XDocument();
-   // public static XDocument xmldoc2 = new XDocument();
-   // public static XDocument xmldoc3 = new XDocument();
-
-    public static int MeshCount = 0;
-    public static List<string> meshes = new List<string>();
 
     // Use this for initialization
     void Start()
-    {
-        
+    {  
         getMetaData();
         getImageAnnotations();
-
     }
 
 
     private void getMetaData()
     {
-     
-        foreach (XElement element in xmldoc.Descendants("patientCase"))
-        {
-             Dictionary<Text, string> myDict = new Dictionary<Text, string>
+        List<String> metaData = XMLParser.parseMetaData();
+
+        Dictionary<Text, string> myDict = new Dictionary<Text, string>
                 {
-                    { text1, element.Element("patientAge").Value  },
-                    { text2, element.Element("revisionNumber").Value },
-                    { text3, element.Element("lastEditedBy").Value },
-                    { text4, element.Element("DateAndTimeOfLastEdit").Value }
+                    { text1, metaData[0]  },
+                    { text2, metaData[1] },
+                    { text3, metaData[2] },
+                    { text4, metaData[3] }
                 };
 
         foreach (KeyValuePair<Text, string> entry in myDict)
-            {
-                entry.Key.text = entry.Value;
-            }
+        {
+            entry.Key.text = entry.Value;
         }
-           
     }
-
 
     private void getImageAnnotations()
     {
-        List<string> imageAnnotations = new List<string>();
         List<Texture2D> textures = new List<Texture2D>();
-        List<string> tags = new List<string>();
-
-        var hasAnnotation = xmldoc.Descendants("annotation");
-
-        if (hasAnnotation != null)
-        {
-            foreach (XElement element1 in xmldoc.Descendants("annotationData"))
-            {
-                string type = element1.Attribute("type").Value.ToString();
-                string tag = element1.Attribute("tag").Value.ToString();
-
-                if (type == "image")
-                {
-                    string CurrentValue = (string)element1;
-                    imageAnnotations.Add(CurrentValue);
-                    tags.Add(tag);
-                }
-            }
-        }
+        List<string> imageAnnotations = XMLParser.parseImageAnnotation();
 
         if (imageAnnotations.Any())
         {
          foreach (string element in imageAnnotations)
                 {
-                    Debug.Log(element);
+                  //  Debug.Log(element);
                     byte[] imageBytes = System.Convert.FromBase64String(element);
                     Texture2D tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
                     tex.LoadImage(imageBytes);
@@ -137,35 +104,28 @@ public class dynamicLoad : MonoBehaviour
             if (textures.Count() == 1)
             {
                 ChangeImage(textures[0], image1);
-                if (tags.Count() >=1)
+                if (XMLParser.imageTags.Count() >=1)
                 {
-                    tag1.text = tags[0];
+                    tag1.text = XMLParser.imageTags[0];
                 }
             }
             else
             {
-
                 ChangeImage(textures[0], image1);
                 ChangeImage(textures[1], image2);
-                if (tags.Count() >= 2)
+                if (XMLParser.imageTags.Count() >= 2)
                 {
-                    tag1.text = tags[0];
-                    tag2.text = tags[1];
-
+                    tag1.text = XMLParser.imageTags[0];
+                    tag2.text = XMLParser.imageTags[1];
                 }
             }
         }
         else
         {
-           // GameObject.Find("CanvasGroup").SetActive(false);
+            GameObject.Find("CanvasGroup").SetActive(false);
         }
-
-        caseName.text = blobName;
-        
-
+        caseName.text = preLoadScene.blobName;
     }
-
-
 
     private void ChangeImage(Texture2D texture, GameObject imageToChange)
     {
@@ -180,8 +140,9 @@ public class dynamicLoad : MonoBehaviour
 
     public void backToListscene()
     {
-        meshes.Clear();
-        MeshCount = 0;
+        XMLParser.imageTags.Clear();
+        preLoadScene.meshes.Clear();
+        preLoadScene.MeshCount = 0;
         SceneManager.LoadScene("ListScene");
 
     }
@@ -192,38 +153,10 @@ public class dynamicLoad : MonoBehaviour
 
     }
 
-    
-
 
 }
 
 
-
-/*
-
-     Debug.Log(node.Value);
-     TextMesh text = label.GetComponent<TextMesh>();
-     text.text = node.Value;
-
-
-     TextMesh text2 = label2.GetComponent<TextMesh>();
-     text2.text = node1.Value;
-
-
-     Texture2D tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-     tex.LoadImage(imageBytes);
-     ChangeImage(tex, image);
-
-     Texture2D tex1 = (Texture2D)Resources.Load("brain_hist");
-     ChangeImage(tex1, image1);
-
-     Texture2D texture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-     texture.LoadImage(imageBytes);
-     ChangeImage(texture, image2);
-
-   //  Texture2D tex2 = (Texture2D)Resources.Load("brain_CT");
-   //  ChangeImage(tex2, image2);
-   */
 
 
 
