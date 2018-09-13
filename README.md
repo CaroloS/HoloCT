@@ -1,11 +1,10 @@
 # holoCT_
 
 
-## Code and Storage
-• Source code for the HoloLens App can be found in the attached zip file.
-• The file structure of the key folders is as follows:
-/Assets
-&nbsp &nbsp &nbsp &nbsp/Holograms – The fetal meshes used in the app (in .fbx format)
+## Code and Storage <br>
+The file structure of the key folders is as follows: <br>
+/Assets <br>
+<&nbsp> <&nbsp> <&nbsp>/Holograms – The fetal meshes used in the app (in .fbx format)
 /Resources - Images, xml files, materials for meshes
 /Scripts – The C# scripts for the app
 /Scenes – The .unity files that contain the main app scenes
