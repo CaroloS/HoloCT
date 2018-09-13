@@ -1,6 +1,6 @@
 # HoloCT
 
-A medical imaging holographic application for viewing CT data in Microsoft's HoloLens device and dynamically loading holographic 'cases' from blob storage. Made for Great Ormond Street Hospital and the NHS ‘Digital Research, Informatics and Virtual Environments’ unit (DRIVE). Holographic cases are in XML format with mesh data stored in GTLF2 format, compressed in base 64.<br>
+A medical imaging holographic application for viewing CT data in Microsoft's HoloLens device and dynamically loading holographic 'cases' from blob storage. Made for Great Ormond Street Hospital and the NHS ‘Digital Research, Informatics and Virtual Environments’ unit (DRIVE): https://www.gosh.nhs.uk/news/great-ormond-street-hospital-partner-microsoft-transform-healthcare-using-artificial-intelligence. Holographic cases are in XML format with mesh data stored in GTLF2 format, compressed in base 64.<br>
 
 Video demonstration here: <br>
 https://youtu.be/nXyaozmQpT8 <br>
@@ -62,4 +62,7 @@ For how to build app to emulator: <br>
 https://docs.microsoft.com/en-us/windows/mixed-reality/holograms-101e <br>
 For how to build app to HoloLens device: <br>
 https://docs.microsoft.com/en-us/windows/mixed-reality/holograms-101 <br>
+
+<br>
+* HoloCT is provided under a GNU AFFERO GENERAL PUBLIC LICENSE and all terms of that licence apply (see LICENSE.txt). Use of the HoloCT or code is entirely at your own risk. Neither the Carolos nor DRIVE accept any responsibility for loss or damage to any person, property or reputation as a result of using the software or code. No warranty is provided by any party, implied or otherwise. This software and code is not guaranteed safe to use in a clinical or other environment and you should make your own assessment on the suitability for such use. Installation of any HoloCT software, indicates acceptance of this disclaimer. A supported and maintained version of HoloCT is available via Carolos partner DRIVE.
 
