@@ -1,7 +1,6 @@
 # HoloCT
 
-A medical imaging holographic application for viewing CT data in Microsoft's HoloLens device and dynamically loaded holographic 'cases' from blob storage. <br>
-Holographic cases are in XML format with mesh data stored in GTLF2 format, compressed in base 64.<br>
+A medical imaging holographic application for viewing CT data in Microsoft's HoloLens device and dynamically loading holographic 'cases' from blob storage. Made for Great Ormond Street Hospital and the NHS ‘Digital Research, Informatics and Virtual Environments’ unit (DRIVE). Holographic cases are in XML format with mesh data stored in GTLF2 format, compressed in base 64.<br>
 
 Video demonstration here: <br>
 https://youtu.be/nXyaozmQpT8 <br>
@@ -51,7 +50,7 @@ name, access key and contiainer needed.  <br>
 mixed reality project can be applied by selecting Mixed Reality Toolkit ->
 Configure -> Apply Mixed Reality Project Settings. Important to target for
 Windows Universal UWP and enable .net scripting backend.
-• Add all the scenes to the build by going to file -> build settings, add open scenes. Preload scene should be the first scene (0) and menu should be second (1). 
+• Add all the scenes to the build by going to file -> build settings, add open scenes. Preload scene should be the first scene (0) and menu should be second (1). <br>
 <strong>Capabilities</strong><br>
 • The app must declare the appropriate capabilities in its manifest. The settings
 are found in Player Settings > Settings for Universal Windows Platform >
